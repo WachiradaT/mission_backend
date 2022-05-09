@@ -1,0 +1,83 @@
+const express = require('express')
+const cors = require('cors')
+const app = express()
+const mysql = require('mysql')
+
+
+const connect = mysql.createConnection({
+    host : 'localhost',
+    user : 'root',
+    database : 'pilotproject'
+})
+ 
+connect.connect()
+
+app.use(cors())
+app.get('/' , (req,res) =>{
+    res.send('Hello world')
+})
+
+app.get('/maneger',(req,res)=>{
+    connect.query('SELECT * FROM maneger',(
+    error,result,_
+    ) => {
+        res.send(result)
+    })
+})
+
+app.get('/project',(req,res)=>{
+    connect.query('SELECT * FROM project',(
+        error,result,_ 
+    ) => {
+        res.send(result)
+    })
+})
+
+app.get('/tools',(req,res) =>{
+    connect.query(' select * from project',(
+        error,result,_
+    ) => {
+        res.send(result)
+    })
+})
+
+app.get('/projecttools',(req,res)=>{
+    let sql = `
+    select 
+    projecttools.projectToolsId,
+    project.name as project_name, 
+    project.dates as project_dates, 
+    project.budgets as project_budgets, 
+    tools.toolsName as tool_name, 
+    tools.color as tool_color
+    from tools 
+    join projecttools on projecttools.toolsId = tools.toolsId
+    join project on project.projectId = projecttools.projectId
+    `
+    connect.query(sql, (error, result, _) => {
+    let n_pts = []
+    result.forEach(pt => {
+        const n_pt = {
+            projecttoolsId: pt.projectToolsId,
+            project: {
+                name: pt.project_name,
+                dates: pt.project_dates,
+                budgets: pt.project_budgets
+            },
+            tool : {
+                name: pt.tool_name,
+                color: pt.tool_color
+            }
+        }
+        n_pts.push(n_pt)
+    });
+    res.send(n_pts)
+    })
+    
+})
+
+
+
+app.listen(3000, _ => {
+    console.log('server is running at port 3000')
+})
