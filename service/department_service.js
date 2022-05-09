@@ -10,6 +10,7 @@ async function getDepartment() {
     })
 }
 
+
 async function getDepartmentByDepartmentId(departmentID){
     return new Promise(resolve => {
         const get_Department = `select department.name,
